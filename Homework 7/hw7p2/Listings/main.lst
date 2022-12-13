@@ -1,0 +1,430 @@
+
+
+
+ARM Macro Assembler    Page 1 
+
+
+    1 00000000         ;******************** (C) Andrew Wolfe *****************
+                       **************************
+    2 00000000         ; @file    HW4 Problem 2
+    3 00000000         ; @author  Andrew Wolfe
+    4 00000000         ; @date    Nov 3, 2019
+    5 00000000         ;*******************************************************
+                       ************************
+    6 00000000         
+    7 00000000         
+    8 00000000                 AREA             main, CODE, READONLY
+    9 00000000                 EXPORT           __main
+   10 00000000                 ENTRY
+   11 00000000         
+   12 00000000         __main  PROC
+   13 00000000         
+   14 00000000 4825            ldr              r0, =strarray ; Pointer to arra
+                                                            y of string pointer
+                                                            s
+   15 00000002 F04F 0107       ldr              r1, =7      ; Number of pointer
+                                                            s in strarray
+   16 00000006 F7FF FFFE       bl               mysort      ; Call sorting rout
+                                                            ine
+   17 0000000A         
+   18 0000000A 4823            LDR              r0, = strarray
+   19 0000000C F850 1B04       LDR              r1, [r0],#4
+   20 00000010 F850 2B04       LDR              r2, [r0],#4 ;Outputs the list t
+                                                            o see if they are i
+                                                            n the correct order
+                                                            
+   21 00000014 F850 3B04       LDR              r3, [r0],#4
+   22 00000018 F850 4B04       LDR              r4, [r0],#4
+   23 0000001C F850 5B04       LDR              r5, [r0],#4
+   24 00000020 F850 6B04       LDR              r6, [r0],#4
+   25 00000024 6807            LDR              r7, [r0]
+   26 00000026         
+   27 00000026         
+   28 00000026         
+   29 00000026         
+   30 00000026         
+   31 00000026 E7FE    endless b                endless
+   32 00000028         
+   33 00000028                 ENDP
+   34 00000028         
+   35 00000028         
+   36 00000028         
+   37 00000028         
+   38 00000028         ;r0 = i, r1=j
+   39 00000028         mysort  PROC
+   40 00000028         
+   41 00000028 B500            PUSH             {lr}
+   42 0000002A F7FF FFFE 
+                       sortloop
+                               BL               compare_and_swap ;Place your co
+                                                            de here
+   43 0000002E F100 0004       ADD              r0, #4
+   44 00000032 3901            SUBS             r1, #1
+   45 00000034 2901            CMP              r1, #1
+   46 00000036 D1F8            BNE              sortloop
+   47 00000038         
+
+
+
+ARM Macro Assembler    Page 2 
+
+
+   48 00000038 F85D EB04       pop              {lr}
+   49 0000003C 4770            bx               lr
+   50 0000003E                 ENDP
+   51 0000003E         
+   52 0000003E         compare_and_swap
+                               PROC
+   53 0000003E         
+   54 0000003E E92D 07F2       PUSH             {r1,r4,r5,r6,r7,r8,r9,r10}
+   55 00000042 4602            MOV              r2, r0
+   56 00000044         
+   57 00000044         
+   58 00000044 6817            LDR              r7, [r2]
+   59 00000046         
+   60 00000046 F852 4F04 
+                       comploop
+                               LDR              r4, [r2, #4]!
+   61 0000004A 46B8            MOV              r8, r7
+   62 0000004C 46A1            MOV              r9, r4
+   63 0000004E F818 5B01 
+                       compchar
+                               LDRB             r5, [r8],#1
+   64 00000052 2D61    rt1     CMP              r5, #'a'
+   65 00000054 BFA8 3D20       SUBGE            r5, #32
+   66 00000058 2D20            CMP              r5, #' '
+   67 0000005A D017            BEQ              space1
+   68 0000005C F819 6B01       LDRB             r6, [r9],#1
+   69 00000060 2E61    rt2     CMP              r6, #'a'
+   70 00000062 BFA8 3E20       SUBGE            r6, #32
+   71 00000066 2E20            CMP              r6, #' '
+   72 00000068 D010            BEQ              space1
+   73 0000006A 42AE            CMP              r6,r5
+   74 0000006C D0EF            BEQ              compchar
+   75 0000006E BFBC 4627       MOVLT            r7, r4
+   76 00000072 4692            MOVLT            r10, r2
+   77 00000074 F1A1 0101       SUB              r1, #1
+   78 00000078 2901            CMP              r1, #1
+   79 0000007A D1E4            BNE              comploop
+   80 0000007C         
+   81 0000007C         
+   82 0000007C 4602            MOV              r2, r0
+   83 0000007E 6813            LDR              r3, [r2]
+   84 00000080 6017            STR              r7, [r2]
+   85 00000082 F8CA 3000       STR              r3, [r10]
+   86 00000086         
+   87 00000086         
+   88 00000086 E8BD 07F2 
+                       skipswap
+                               POP              {r1,r4,r5,r6,r7,r8,r9,r10}
+   89 0000008A         
+   90 0000008A 4770            bx               lr
+   91 0000008C         
+   92 0000008C F818 5B01 
+                       space1  LDRB             r5, [r8],#1
+   93 00000090 E7DF            B                rt1
+   94 00000092 F819 6B01 
+                       space2  LDRB             r6, [r9],#1
+   95 00000096 E7E3            B                rt2
+   96 00000098         
+   97 00000098         
+
+
+
+ARM Macro Assembler    Page 3 
+
+
+   98 00000098         
+   99 00000098         
+  100 00000098                 ENDP
+  101 00000098         
+  102 00000098 00000000 
+              00000000         AREA             mydata, DATA, READONLY
+  103 00000000         
+  104 00000000 00000000 
+              00000000 
+              00000000 
+              00000000 
+              00000000 
+              00000000 
+              00000000 strarray
+                               DCD              str1, str2, str3, str4, str5, s
+tr6, str7
+  105 0000001C         
+  106 0000001C         
+  107 0000001C 46 69 72 
+              73 74 20 
+              73 74 72 
+              69 6E 67 
+              00       str1    DCB              "First string",0
+  108 00000029 53 65 63 
+              6F 6E 64 
+              20 73 74 
+              72 69 6E 
+              67 00    str2    DCB              "Second string",0
+  109 00000037 53 6F 2C 
+              20 64 6F 
+              20 49 20 
+              72 65 61 
+              6C 6C 79 
+              20 6E 65 
+              65 64 20 
+              61 20 74 
+              68 69 72 
+              64 20 73 
+              74 72 69 
+              6E 67 00 str3    DCB              "So, do I really need a third s
+tring",0
+  110 0000005B 54 65 74 
+              72 61 70 
+              68 6F 62 
+              69 61 20 
+              69 73 20 
+              74 68 65 
+              20 66 65 
+              61 72 20 
+              6F 66 20 
+              74 68 65 
+              20 6E 75 
+              6D 62 65 
+              72 20 34 
+              00       str4    DCB              "Tetraphobia is the fear of the
+ number 4",0
+  111 00000083 41 20 69 
+              73 20 66 
+              6F 72 20 
+
+
+
+ARM Macro Assembler    Page 4 
+
+
+              61 70 70 
+              6C 65 00 str5    DCB              "A is for apple",0
+  112 00000092 5A 20 69 
+              73 20 63 
+              61 6C 6C 
+              65 64 20 
+              27 7A 65 
+              64 27 20 
+              69 6E 20 
+              43 61 6E 
+              61 64 61 
+              00       str6    DCB              "Z is called \'zed\' in Canada"
+,0
+  113 000000AE 4D 20 69 
+              73 20 66 
+              6F 72 20 
+              6D 69 64 
+              64 6C 65 
+              00       str7    DCB              "M is for middle",0
+  114 000000BE                 END
+Command Line: --debug --xref --diag_suppress=9931 --cpu=Cortex-M4 --apcs=interw
+ork --depend=.\objects\main.d -o.\objects\main.o -IC:\Apps\Keil_v5\ARM\RV31\INC
+ -IC:\Apps\Keil_v5\ARM\CMSIS\Include --predefine="__UVISION_VERSION SETA 536" -
+-list=.\listings\main.lst main.s
+
+
+
+ARM Macro Assembler    Page 1 Alphabetic symbol ordering
+Relocatable symbols
+
+__main 00000000
+
+Symbol: __main
+   Definitions
+      At line 12 in file main.s
+   Uses
+      At line 9 in file main.s
+Comment: __main used once
+compare_and_swap 0000003E
+
+Symbol: compare_and_swap
+   Definitions
+      At line 52 in file main.s
+   Uses
+      At line 42 in file main.s
+Comment: compare_and_swap used once
+compchar 0000004E
+
+Symbol: compchar
+   Definitions
+      At line 63 in file main.s
+   Uses
+      At line 74 in file main.s
+Comment: compchar used once
+comploop 00000046
+
+Symbol: comploop
+   Definitions
+      At line 60 in file main.s
+   Uses
+      At line 79 in file main.s
+Comment: comploop used once
+endless 00000026
+
+Symbol: endless
+   Definitions
+      At line 31 in file main.s
+   Uses
+      At line 31 in file main.s
+Comment: endless used once
+main 00000000
+
+Symbol: main
+   Definitions
+      At line 8 in file main.s
+   Uses
+      None
+Comment: main unused
+mysort 00000028
+
+Symbol: mysort
+   Definitions
+      At line 39 in file main.s
+   Uses
+      At line 16 in file main.s
+Comment: mysort used once
+rt1 00000052
+
+Symbol: rt1
+
+
+
+ARM Macro Assembler    Page 2 Alphabetic symbol ordering
+Relocatable symbols
+
+   Definitions
+      At line 64 in file main.s
+   Uses
+      At line 93 in file main.s
+Comment: rt1 used once
+rt2 00000060
+
+Symbol: rt2
+   Definitions
+      At line 69 in file main.s
+   Uses
+      At line 95 in file main.s
+Comment: rt2 used once
+skipswap 00000086
+
+Symbol: skipswap
+   Definitions
+      At line 88 in file main.s
+   Uses
+      None
+Comment: skipswap unused
+sortloop 0000002A
+
+Symbol: sortloop
+   Definitions
+      At line 42 in file main.s
+   Uses
+      At line 46 in file main.s
+Comment: sortloop used once
+space1 0000008C
+
+Symbol: space1
+   Definitions
+      At line 92 in file main.s
+   Uses
+      At line 67 in file main.s
+      At line 72 in file main.s
+
+space2 00000092
+
+Symbol: space2
+   Definitions
+      At line 94 in file main.s
+   Uses
+      None
+Comment: space2 unused
+13 symbols
+
+
+
+ARM Macro Assembler    Page 1 Alphabetic symbol ordering
+Relocatable symbols
+
+mydata 00000000
+
+Symbol: mydata
+   Definitions
+      At line 102 in file main.s
+   Uses
+      None
+Comment: mydata unused
+str1 0000001C
+
+Symbol: str1
+   Definitions
+      At line 107 in file main.s
+   Uses
+      At line 104 in file main.s
+Comment: str1 used once
+str2 00000029
+
+Symbol: str2
+   Definitions
+      At line 108 in file main.s
+   Uses
+      At line 104 in file main.s
+Comment: str2 used once
+str3 00000037
+
+Symbol: str3
+   Definitions
+      At line 109 in file main.s
+   Uses
+      At line 104 in file main.s
+Comment: str3 used once
+str4 0000005B
+
+Symbol: str4
+   Definitions
+      At line 110 in file main.s
+   Uses
+      At line 104 in file main.s
+Comment: str4 used once
+str5 00000083
+
+Symbol: str5
+   Definitions
+      At line 111 in file main.s
+   Uses
+      At line 104 in file main.s
+Comment: str5 used once
+str6 00000092
+
+Symbol: str6
+   Definitions
+      At line 112 in file main.s
+   Uses
+      At line 104 in file main.s
+Comment: str6 used once
+str7 000000AE
+
+Symbol: str7
+
+
+
+ARM Macro Assembler    Page 2 Alphabetic symbol ordering
+Relocatable symbols
+
+   Definitions
+      At line 113 in file main.s
+   Uses
+      At line 104 in file main.s
+Comment: str7 used once
+strarray 00000000
+
+Symbol: strarray
+   Definitions
+      At line 104 in file main.s
+   Uses
+      At line 14 in file main.s
+      At line 18 in file main.s
+
+9 symbols
+355 symbols in table
